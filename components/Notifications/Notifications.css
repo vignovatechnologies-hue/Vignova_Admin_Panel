@@ -1,0 +1,42 @@
+.notifications-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  padding: 60px 20px;
+}
+
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.notifications-list__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.notifications-list__item:last-child {
+  border-bottom: none;
+}
+
+.notifications-list__body {
+  flex: 1;
+}
+
+.notifications-list__text {
+  font-size: 13.5px;
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.notifications-list__time {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-top: 3px;
+}
