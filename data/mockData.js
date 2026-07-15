@@ -55,13 +55,13 @@ export const installsOverview = [
 ];
 
 export const activeUsersOverview = [
-  { day: "Jun 1", users: 1250 },
-  { day: "Jun 2", users: 1200 },
-  { day: "Jun 3", users: 1550 },
-  { day: "Jun 4", users: 1350 },
-  { day: "Jun 5", users: 1250 },
-  { day: "Jun 6", users: 1300 },
-  { day: "Jun 7", users: 1580 },
+  { day: "Jun 1", users: 0 },
+  { day: "Jun 2", users: 0 },
+  { day: "Jun 3", users: 0 },
+  { day: "Jun 4", users: 0 },
+  { day: "Jun 5", users: 0 },
+  { day: "Jun 6", users: 0 },
+  { day: "Jun 7", users: 0 },
 ];
 
 const STAGE_COLORS = {
@@ -80,6 +80,38 @@ export function computeStageDistribution(productList) {
     if (counts[p.status] !== undefined) counts[p.status] += 1;
   });
   return order.map((name) => ({ name, value: counts[name], color: STAGE_COLORS[name] }));
+}
+
+// The `products` table has no dedicated "steps" column, so the idea/design/
+// development/testing/launch dots are derived from status + progress.
+// This keeps the Roadmap Overview and Product Detail step-trackers in sync
+// with whatever an admin sets in the Add/Edit Product form, instead of a
+// hand-maintained list that silently drifts out of sync (and drops products).
+const STAGE_ORDER = ["Planning", "Development", "Testing", "In Progress", "Live"];
+
+export function computeRoadmapSteps(product) {
+  const stageIndex = STAGE_ORDER.indexOf(product.status);
+  const progress = Number(product.progress) || 0;
+
+  return {
+    idea: true, // every product that exists has passed the idea stage
+    design: stageIndex >= 1 || progress >= 20,
+    development: stageIndex >= 1 || progress >= 40,
+    testing: stageIndex >= 2 || progress >= 80,
+    launch: product.status === "Live" || progress >= 100,
+  };
+}
+
+export function computeRoadmapOverview(productList) {
+  return productList.map((p) => ({
+    id: p.id,
+    code: p.code,
+    name: p.display_name || p.code,
+    tone: p.tone,
+    stage: p.status,
+    progress: Number(p.progress) || 0,
+    steps: computeRoadmapSteps(p),
+  }));
 }
 
 export const recentNotifications = [
@@ -125,12 +157,12 @@ export const products = [
     description:
       "AI-powered personal finance app that tracks expenses, forecasts spending and delivers smart financial insights.",
     status: "Testing",
-    installs: "10,250",
-    activeUsers: "2,850",
-    totalUsers: "12,400",
+    installs: "0",
+    activeUsers: "0",
+    totalUsers: "0",
     progress: 80,
     version: "1.0.0 (Beta)",
-    targetLaunch: "Aug 2024",
+    targetLaunch: "Aug 2026",
     tone: "dark",
   },
   {
@@ -142,12 +174,12 @@ export const products = [
     description:
       "Cash-flow, invoicing and financial reporting suite built for small and mid-sized businesses.",
     status: "Planning",
-    installs: "1,350",
-    activeUsers: "320",
-    totalUsers: "1,600",
-    progress: 60,
+    installs: "0",
+    activeUsers: "0",
+    totalUsers: "0",
+    progress: 0,
     version: "0.3.0 (Alpha)",
-    targetLaunch: "Nov 2024",
+    targetLaunch: "Nov 2026",
     tone: "pink",
   },
   {
@@ -159,12 +191,12 @@ export const products = [
     description:
       "Professional networking platform connecting founders, freelancers and investors in one place.",
     status: "Live",
-    installs: "650",
-    activeUsers: "120",
-    totalUsers: "700",
-    progress: 40,
+    installs: "0",
+    activeUsers: "0",
+    totalUsers: "0",
+    progress: 100,
     version: "0.1.5 (Alpha)",
-    targetLaunch: "Jan 2025",
+    targetLaunch: "June 2026",
     tone: "green",
   },
   {
@@ -202,16 +234,16 @@ export const roadmapOverview = [
     code: "FB",
     name: "FIM Business",
     stage: "Planning",
-    progress: 60,
-    steps: { idea: true, design: true, development: "current", testing: false, launch: false },
+    progress: 0,
+    steps: { idea: true, design: false, development: false, testing: false, launch: false },
   },
   {
     id: "vconnect",
     code: "VC",
     name: "Vconnect",
     stage: "Live",
-    progress: 40,
-    steps: { idea: true, design: true, development: true, testing: "current", launch: false },
+    progress: 100,
+    steps: { idea: true, design: true, development: true, testing: true, launch: true },
   },
   {
     id: "future-idea-lab",
@@ -219,24 +251,24 @@ export const roadmapOverview = [
     name: "Future Idea Lab",
     stage: "Planning",
     progress: 0,
-    steps: { idea: false, design: false, development: false, testing: false, launch: false },
+    steps: { idea: true, design: false, development: false, testing: false, launch: false },
   },
 ];
 
 export const upcomingMilestones = [
-  { id: 1, title: "Expense Tracking Complete (FIM)", progress: 90, due: "Jun 15, 2024" },
-  { id: 2, title: "AI Insights Module (FIM)", progress: 60, due: "Jun 30, 2024" },
-  { id: 3, title: "Premium Subscription (FIM)", progress: 25, due: "Jul 20, 2024" },
-  { id: 4, title: "Play Store Launch (FIM)", progress: 10, due: "Aug 15, 2024" },
-  { id: 5, title: "TalentedHub MVP", progress: 50, due: "Jul 10, 2024" },
+  { id: 1, title: "Expense Tracking Complete (FIM)", progress: 0, due: "Jun 15, 2026" },
+  { id: 2, title: "AI Insights Module (FIM)", progress: 0, due: "Jun 30, 2026" },
+  { id: 3, title: "Premium Subscription (FIM)", progress: 5, due: "Jul 20, 2026" },
+  { id: 4, title: "Play Store Launch (FIM)", progress: 0, due: "Aug 15, 2026" },
+  { id: 5, title: "TalentedHub MVP", progress: 0, due: "Jul 10, 2026" },
 ];
 
 export const collaborationsSummary = [
-  { id: 1, name: "Razorpay", role: "Payment Partner", status: "Active", since: "May 2024" },
-  { id: 2, name: "Bank of Baroda", role: "Banking Partner", status: "Active", since: "Apr 2024" },
-  { id: 3, name: "Finology", role: "Content Partner", status: "Active", since: "May 2024" },
-  { id: 4, name: "WinZo", role: "Promotion Partner", status: "Pending", since: "Jun 2024" },
-  { id: 5, name: "Google Cloud", role: "Technology Partner", status: "Active", since: "Mar 2024" },
+  { id: 1, name: "Razorpay", role: "Payment Partner", status: "Pending", since: "Jun 2026" },
+  { id: 2, name: "Bank of Baroda", role: "Banking Partner", status: "Pending", since: "Jun 2026" },
+  { id: 3, name: "Finology", role: "Content Partner", status: "Pending", since: "Jun 2026" },
+  { id: 4, name: "WinZo", role: "Promotion Partner", status: "Pending", since: "Jun 2026" },
+  { id: 5, name: "Google Cloud", role: "Technology Partner", status: "Pending", since: "Jun 2026" },
 ];
 
 export const analyticsKpis = [
@@ -247,26 +279,26 @@ export const analyticsKpis = [
 ];
 
 export const growthTrend = [
-  { day: "Jun 1", installs: 300, activeUsers: 1250 },
-  { day: "Jun 2", installs: 480, activeUsers: 1200 },
-  { day: "Jun 3", installs: 420, activeUsers: 1550 },
-  { day: "Jun 4", installs: 380, activeUsers: 1350 },
-  { day: "Jun 5", installs: 1250, activeUsers: 1250 },
-  { day: "Jun 6", installs: 520, activeUsers: 1300 },
-  { day: "Jun 7", installs: 1750, activeUsers: 1580 },
+  { day: "Jun 1", installs: 0, activeUsers: 0 },
+  { day: "Jun 2", installs: 0, activeUsers: 0 },
+  { day: "Jun 3", installs: 0, activeUsers: 0 },
+  { day: "Jun 4", installs: 0, activeUsers: 0 },
+  { day: "Jun 5", installs: 0, activeUsers: 0 },
+  { day: "Jun 6", installs: 0, activeUsers: 0 },
+  { day: "Jun 7", installs: 0, activeUsers: 0 },
 ];
 
 export const productComparison = [
-  { name: "FIM", installs: 10250, activeUsers: 2850 },
-  { name: "FIM Business", installs: 1350, activeUsers: 320 },
-  { name: "Vconnect", installs: 650, activeUsers: 120 },
+  { name: "FIM", installs: 0, activeUsers: 0 },
+  { name: "FIM Business", installs: 0, activeUsers: 0 },
+  { name: "Vconnect", installs: 0, activeUsers: 0 },
   { name: "Future Idea Lab", installs: 0, activeUsers: 0 },
 ];
 
 export const retentionRanking = [
-  { name: "FIM", retention: 32, color: "#6c4ff5" },
-  { name: "FIM Business", retention: 24, color: "#16a34a" },
-  { name: "Vconnect", retention: 18, color: "#ec4899" },
+  { name: "FIM", retention: 0, color: "#6c4ff5" },
+  { name: "FIM Business", retention: 0, color: "#16a34a" },
+  { name: "Vconnect", retention: 0, color: "#ec4899" },
   { name: "Future Idea Lab", retention: 0, color: "#9ca3af" },
 ];
 
@@ -291,25 +323,4 @@ export const sidebarNav = [
   { id: "collaborations", label: "Collaborations", icon: "handshake", href: "/collaborations" },
   { id: "notifications", label: "Notifications", icon: "bell", href: "/notifications", badge: 8 },
   { id: "settings", label: "Settings", icon: "settings", href: "/settings" },
-];
-
-export const employees = [
-  {
-    id: "emp-1",
-    name: "Ananya Rao",
-    email: "ananya.rao@vignova.in",
-    phone: "+91 98765 43210",
-    role: "Product Analyst",
-    status: "Active",
-    joined: "Mar 2024",
-  },
-  {
-    id: "emp-2",
-    name: "Karthik Iyer",
-    email: "karthik.iyer@vignova.in",
-    phone: "+91 91234 56780",
-    role: "Support Lead",
-    status: "Active",
-    joined: "Jan 2024",
-  },
 ];

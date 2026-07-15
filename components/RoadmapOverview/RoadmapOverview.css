@@ -13,12 +13,16 @@
 
 .roadmap__row {
   display: grid;
-  grid-template-columns: 1.6fr 1fr 1.4fr repeat(5, 0.6fr);
+  grid-template-columns: 1.4fr 0.9fr 1.2fr repeat(5, minmax(40px, 0.55fr));
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   padding: 12px 0;
   border-bottom: 1px solid var(--color-border);
-  min-width: 640px;
+  min-width: 560px;
+}
+
+.roadmap__row>* {
+  min-width: 0;
 }
 
 .roadmap__row--head {
@@ -27,6 +31,12 @@
   letter-spacing: 0.3px;
   color: var(--color-text-muted);
   font-weight: 600;
+}
+
+.roadmap__row--head>span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .roadmap__step-head {
@@ -40,6 +50,10 @@
   font-size: 13px;
   font-weight: 600;
   color: var(--color-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .roadmap__product-tag {
@@ -54,47 +68,50 @@
   color: #fff;
 }
 
-.roadmap__product-tag--fim {
-  background: #1c1b2e;
-}
-.roadmap__product-tag--talentedhub {
-  background: #ec4899;
-}
-.roadmap__product-tag--vigcredit {
-  background: #16a34a;
-}
-.roadmap__product-tag--future-idea-lab {
-  background: #8b5cf6;
-}
-
 .roadmap__stage {
   font-size: 10.5px;
   font-weight: 700;
   padding: 3px 9px;
   border-radius: 999px;
+  white-space: nowrap;
+  display: inline-block;
 }
 
 .roadmap__stage--dev {
   background: var(--color-orange-bg);
   color: var(--color-orange);
 }
+
 .roadmap__stage--testing {
   background: var(--color-purple-bg);
   color: var(--color-purple);
 }
+
 .roadmap__stage--planning {
   background: #eef0f4;
   color: var(--color-text-muted);
+}
+
+.roadmap__stage--live {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.roadmap__stage--progress {
+  background: #dbeafe;
+  color: #3b82f6;
 }
 
 .roadmap__progress {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
 }
 
 .roadmap__progress-track {
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: 24px;
   height: 6px;
   border-radius: 999px;
   background: #eef0f4;
@@ -112,6 +129,8 @@
   font-weight: 600;
   color: var(--color-text);
   min-width: 32px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .roadmap__step-cell {

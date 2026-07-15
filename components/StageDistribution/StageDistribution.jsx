@@ -1,15 +1,47 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
-import { productStageDistribution } from "@/data/mockData";
+import { supabase } from "@/lib/supabaseClient";
+import { computeStageDistribution } from "@/data/mockData";
 import "./StageDistribution.css";
 
-export default function StageDistribution({ data = productStageDistribution }) {
+export default function StageDistribution() {
+  const [data, setData] = useState([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const load = async () => {
+      const { data: rows, error } = await supabase.from("products").select("*");
+      if (!mounted) return;
+      if (!error) setData(computeStageDistribution(rows || []));
+      setLoaded(true);
+    };
+
+    load();
+
+    const channel = supabase
+      .channel("stage-distribution-products-changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "products" }, load)
+      .subscribe();
+
+    return () => {
+      mounted = false;
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   const total = data.reduce((sum, d) => sum + d.value, 0);
 
   return (
     <div className="stage-distribution card">
       <h3 className="stage-distribution__title">Product Stage Distribution</h3>
+
+      {!loaded && (
+        <p style={{ color: "var(--color-text-muted)", fontSize: 13 }}>Loading...</p>
+      )}
 
       <div className="stage-distribution__chart">
         <ResponsiveContainer width="100%" height={170}>

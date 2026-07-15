@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Box, Download, Users, Handshake, TrendingUp, TrendingDown } from "lucide-react";
 import {
     AreaChart,
@@ -15,12 +16,7 @@ import {
 } from "recharts";
 import Sidebar from "@/components/Sidebar/Sidebar";
 import Topbar from "@/components/Topbar/Topbar";
-import {
-    analyticsKpis,
-    growthTrend,
-    productComparison,
-    retentionRanking,
-} from "@/data/mockData";
+import { supabase } from "@/lib/supabaseClient";
 import "./Analytics.css";
 
 const ICONS = {
@@ -45,13 +41,101 @@ function GrowthTooltip({ active, payload, label }) {
     );
 }
 
+const RETENTION_COLORS = ["#6c4ff5", "#16a34a", "#ec4899", "#f59e0b", "#3b82f6", "#9ca3af"];
+
 export default function Analytics() {
+    const [products, setProducts] = useState([]);
+    const [loaded, setLoaded] = useState(false);
+
+    useEffect(() => {
+        let mounted = true;
+        supabase
+            .from("products")
+            .select("*")
+            .then(({ data, error }) => {
+                if (!mounted) return;
+                if (!error) setProducts(data || []);
+                setLoaded(true);
+            });
+        return () => { mounted = false; };
+    }, []);
+
+    const toNum = (v) => Number(v) || 0;
+
+    const totalInstalls = products.reduce((sum, p) => sum + toNum(p.installs), 0);
+    const totalActiveUsers = products.reduce((sum, p) => sum + toNum(p.active_users), 0);
+    const avgProgress = products.length
+        ? Math.round(products.reduce((sum, p) => sum + toNum(p.progress), 0) / products.length)
+        : 0;
+    const liveCount = products.filter((p) => p.status === "Live").length;
+
+    // No dedicated analytics/session-tracking table exists yet, so KPIs are
+    // built from real product rows instead of invented numbers. "This month"
+    // trend text is omitted since there's no historical snapshot to compare
+    // against yet.
+    const analyticsKpis = [
+        {
+            id: "installs",
+            label: "Total Installs",
+            value: totalInstalls.toLocaleString(),
+            footnote: "Across all products",
+            trend: "up",
+            icon: "download",
+            tone: "purple",
+        },
+        {
+            id: "active-users",
+            label: "Total Active Users",
+            value: totalActiveUsers.toLocaleString(),
+            footnote: "Across all products",
+            trend: "up",
+            icon: "users",
+            tone: "green",
+        },
+        {
+            id: "avg-progress",
+            label: "Avg. Product Progress",
+            value: `${avgProgress}%`,
+            footnote: `${products.length} product${products.length === 1 ? "" : "s"} tracked`,
+            trend: "up",
+            icon: "box",
+            tone: "blue",
+        },
+        {
+            id: "live-products",
+            label: "Live Products",
+            value: `${liveCount}`,
+            footnote: `of ${products.length} total`,
+            trend: "up",
+            icon: "handshake",
+            tone: "orange",
+        },
+    ];
+
+    const productComparison = products.map((p) => ({
+        name: p.display_name || p.code,
+        installs: toNum(p.installs),
+        activeUsers: toNum(p.active_users),
+    }));
+
+    const retentionRanking = products.map((p, i) => ({
+        name: p.display_name || p.code,
+        // No retention-tracking table exists yet; shown as 0 until real
+        // session/retention data is captured, rather than a fabricated number.
+        retention: 0,
+        color: RETENTION_COLORS[i % RETENTION_COLORS.length],
+    }));
+
     return (
         <div className="dashboard-shell">
             <Sidebar activeId="analytics" />
 
             <main className="dashboard-main">
                 <Topbar />
+
+                {!loaded && (
+                    <p style={{ color: "var(--color-text-muted)", fontSize: 13 }}>Loading analytics...</p>
+                )}
 
                 <section className="analytics-kpis">
                     {analyticsKpis.map((kpi) => {
@@ -80,60 +164,67 @@ export default function Analytics() {
                 <section className="analytics-grid">
                     <div className="analytics-chart card">
                         <h3 className="analytics-chart__title">Growth Trend</h3>
-                        <ResponsiveContainer width="100%" height={260}>
-                            <AreaChart data={growthTrend} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                                <defs>
-                                    <linearGradient id="installsFill" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stopColor="#6c4ff5" stopOpacity={0.25} />
-                                        <stop offset="100%" stopColor="#6c4ff5" stopOpacity={0} />
-                                    </linearGradient>
-                                    <linearGradient id="activeUsersFill" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stopColor="#16a34a" stopOpacity={0.2} />
-                                        <stop offset="100%" stopColor="#16a34a" stopOpacity={0} />
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid vertical={false} stroke="#f0f0f5" />
-                                <XAxis
-                                    dataKey="day"
-                                    axisLine={false}
-                                    tickLine={false}
-                                    tick={{ fontSize: 12, fill: "#8a8a9c" }}
-                                />
-                                <YAxis
-                                    axisLine={false}
-                                    tickLine={false}
-                                    tick={{ fontSize: 12, fill: "#8a8a9c" }}
-                                    tickFormatter={(v) => (v >= 1000 ? `${v / 1000}K` : v)}
-                                />
-                                <Tooltip content={<GrowthTooltip />} />
-                                <Legend
-                                    verticalAlign="top"
-                                    height={28}
-                                    iconType="circle"
-                                    wrapperStyle={{ fontSize: 12.5, color: "#8a8a9c" }}
-                                />
-                                <Area
-                                    type="monotone"
-                                    dataKey="installs"
-                                    name="Installs"
-                                    stroke="#6c4ff5"
-                                    strokeWidth={2.5}
-                                    fill="url(#installsFill)"
-                                    dot={{ r: 3, fill: "#6c4ff5", strokeWidth: 0 }}
-                                    activeDot={{ r: 5 }}
-                                />
-                                <Area
-                                    type="monotone"
-                                    dataKey="activeUsers"
-                                    name="Active Users"
-                                    stroke="#16a34a"
-                                    strokeWidth={2.5}
-                                    fill="url(#activeUsersFill)"
-                                    dot={{ r: 3, fill: "#16a34a", strokeWidth: 0 }}
-                                    activeDot={{ r: 5 }}
-                                />
-                            </AreaChart>
-                        </ResponsiveContainer>
+                        {products.length === 0 ? (
+                            <p style={{ color: "var(--color-text-muted)", fontSize: 13, padding: "24px 0" }}>
+                                No historical data yet. This chart will populate once installs/active-user
+                                snapshots are being recorded over time.
+                            </p>
+                        ) : (
+                            <ResponsiveContainer width="100%" height={260}>
+                                <AreaChart data={productComparison} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                                    <defs>
+                                        <linearGradient id="installsFill" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#6c4ff5" stopOpacity={0.25} />
+                                            <stop offset="100%" stopColor="#6c4ff5" stopOpacity={0} />
+                                        </linearGradient>
+                                        <linearGradient id="activeUsersFill" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#16a34a" stopOpacity={0.2} />
+                                            <stop offset="100%" stopColor="#16a34a" stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid vertical={false} stroke="#f0f0f5" />
+                                    <XAxis
+                                        dataKey="name"
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fontSize: 12, fill: "#8a8a9c" }}
+                                    />
+                                    <YAxis
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fontSize: 12, fill: "#8a8a9c" }}
+                                        tickFormatter={(v) => (v >= 1000 ? `${v / 1000}K` : v)}
+                                    />
+                                    <Tooltip content={<GrowthTooltip />} />
+                                    <Legend
+                                        verticalAlign="top"
+                                        height={28}
+                                        iconType="circle"
+                                        wrapperStyle={{ fontSize: 12.5, color: "#8a8a9c" }}
+                                    />
+                                    <Area
+                                        type="monotone"
+                                        dataKey="installs"
+                                        name="Installs"
+                                        stroke="#6c4ff5"
+                                        strokeWidth={2.5}
+                                        fill="url(#installsFill)"
+                                        dot={{ r: 3, fill: "#6c4ff5", strokeWidth: 0 }}
+                                        activeDot={{ r: 5 }}
+                                    />
+                                    <Area
+                                        type="monotone"
+                                        dataKey="activeUsers"
+                                        name="Active Users"
+                                        stroke="#16a34a"
+                                        strokeWidth={2.5}
+                                        fill="url(#activeUsersFill)"
+                                        dot={{ r: 3, fill: "#16a34a", strokeWidth: 0 }}
+                                        activeDot={{ r: 5 }}
+                                    />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        )}
                     </div>
 
                     <div className="analytics-chart card">

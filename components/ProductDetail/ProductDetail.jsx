@@ -16,7 +16,7 @@ import {
 import Sidebar from "@/components/Sidebar/Sidebar";
 import Topbar from "@/components/Topbar/Topbar";
 import {
-    roadmapOverview,
+    computeRoadmapSteps,
     upcomingMilestones,
 } from "@/data/mockData";
 import "./ProductDetail.css";
@@ -104,7 +104,7 @@ export default function ProductDetail({ slug }) {
     }
 
     const displayName = product.display_name || product.code;
-    const roadmap = roadmapOverview.find((r) => r.id === product.slug);
+    const roadmap = { steps: computeRoadmapSteps(product) };
     const milestones = upcomingMilestones.filter((m) =>
         m.title.toLowerCase().includes(`(${displayName.toLowerCase()})`)
     );
