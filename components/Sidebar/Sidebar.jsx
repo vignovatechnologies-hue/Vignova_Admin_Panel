@@ -15,6 +15,7 @@ import {
   ChevronUp,
   UsersRound,
   Briefcase,
+  Lightbulb,
 } from "lucide-react";
 import { sidebarNav } from "@/data/mockData";
 import { useRole } from "@/lib/RoleContext";
@@ -31,6 +32,7 @@ const ICONS = {
   settings: Settings,
   "users-round": UsersRound,
   briefcase: Briefcase,
+  lightbulb: Lightbulb,
 };
 
 function findActiveId(pathname) {

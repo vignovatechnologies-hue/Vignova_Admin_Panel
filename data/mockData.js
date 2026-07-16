@@ -199,23 +199,6 @@ export const products = [
     targetLaunch: "June 2026",
     tone: "green",
   },
-  {
-    id: "future-idea-lab",
-    slug: "future-idea-lab",
-    code: "IL",
-    name: "New Product Ideas",
-    displayName: "Future Idea Lab",
-    description:
-      "Incubation space for early-stage product ideas before they get a roadmap of their own.",
-    status: "Planning",
-    installs: "0",
-    activeUsers: "0",
-    totalUsers: "0",
-    progress: 0,
-    version: "TBD",
-    targetLaunch: "TBD",
-    tone: "purple",
-  },
 ];
 
 export const productStageDistribution = computeStageDistribution(products);
@@ -244,14 +227,6 @@ export const roadmapOverview = [
     stage: "Live",
     progress: 100,
     steps: { idea: true, design: true, development: true, testing: true, launch: true },
-  },
-  {
-    id: "future-idea-lab",
-    code: "IL",
-    name: "Future Idea Lab",
-    stage: "Planning",
-    progress: 0,
-    steps: { idea: true, design: false, development: false, testing: false, launch: false },
   },
 ];
 
@@ -314,13 +289,12 @@ export const sidebarNav = [
       { id: "fim", label: "FIM", href: "/products/fim" },
       { id: "fim-business", label: "FIM Business", href: "/products/fim-business" },
       { id: "vconnect", label: "VConnect", href: "/products/vconnect" },
-      { id: "future-idea-lab", label: "Future Idea Lab", href: "/products/future-idea-lab" },
     ],
   },
   { id: "analytics", label: "Analytics", icon: "bar-chart-3", href: "/analytics" },
+  { id: "idea-lab", label: "Future Idea Lab", icon: "lightbulb", href: "/idea-lab" },
   { id: "employees", label: "Employees", icon: "users-round", href: "/employees", adminOnly: true },
   { id: "clients", label: "Clients", icon: "briefcase", href: "/clients" },
   { id: "collaborations", label: "Collaborations", icon: "handshake", href: "/collaborations" },
   { id: "notifications", label: "Notifications", icon: "bell", href: "/notifications", badge: 8 },
-  { id: "settings", label: "Settings", icon: "settings", href: "/settings" },
 ];

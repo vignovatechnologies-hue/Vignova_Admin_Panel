@@ -5,7 +5,7 @@ import Sidebar from "@/components/Sidebar/Sidebar";
 import Topbar from "@/components/Topbar/Topbar";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/lib/AuthContext";
-import { Plus, X, KeyRound, Mail, Pencil, ShieldOff } from "lucide-react";
+import { Plus, X, KeyRound, Mail, Pencil, ShieldOff, Trash2 } from "lucide-react";
 import "@/components/Dashboard/Dashboard.css";
 import "./Employees.css";
 
@@ -28,6 +28,10 @@ export default function Employees() {
 
   const [resetFor, setResetFor] = useState(null);
   const [newPassword, setNewPassword] = useState("");
+
+  const [deleteFor, setDeleteFor] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   const loadEmployees = async () => {
     const { data, error } = await supabase.from("employees").select("*").order("joined_at", { ascending: false });
@@ -123,6 +127,31 @@ export default function Employees() {
     }
   };
 
+  const openDelete = (emp) => {
+    setDeleteFor(emp);
+    setDeleteError("");
+  };
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    setDeleteError("");
+    try {
+      const res = await fetch("/api/employees/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: deleteFor.id, authUserId: deleteFor.auth_user_id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to delete employee.");
+      setEmployees((prev) => prev.filter((e) => e.id !== deleteFor.id));
+      setDeleteFor(null);
+    } catch (err) {
+      setDeleteError(err.message);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (!isAdmin) {
     return (
       <div className="dashboard-shell">
@@ -188,6 +217,9 @@ export default function Employees() {
                       </button>
                       <button className="btn btn--ghost btn--sm" onClick={() => openReset(emp)}>
                         <KeyRound size={13} /> New password
+                      </button>
+                      <button className="btn btn--ghost btn--sm" style={{ color: "var(--color-red)" }} onClick={() => openDelete(emp)}>
+                        <Trash2 size={13} /> Delete
                       </button>
                     </div>
                   </td>
@@ -338,6 +370,36 @@ export default function Employees() {
                   <button type="submit" className="btn btn--primary" disabled={saving}>{saving ? "Updating..." : "Update password"}</button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {deleteFor && (
+          <div className="modal-overlay" onClick={() => setDeleteFor(null)}>
+            <div className="modal" onClick={(e) => e.stopPropagation()}>
+              <div className="modal__header">
+                <div>
+                  <p className="modal__title">Delete employee</p>
+                  <p className="modal__subtitle">This removes {deleteFor.name} ({deleteFor.email}) and their login access permanently.</p>
+                </div>
+                <button className="modal__close" onClick={() => setDeleteFor(null)}><X size={18} /></button>
+              </div>
+              <p style={{ fontSize: 13.5, color: "var(--color-text-muted)" }}>
+                They will no longer be able to sign in, and their email will be free to use again for a new employee. This can't be undone.
+              </p>
+              {deleteError && <p className="login-card__error">{deleteError}</p>}
+              <div className="modal__actions">
+                <button type="button" className="btn btn--ghost" onClick={() => setDeleteFor(null)}>Cancel</button>
+                <button
+                  type="button"
+                  className="btn btn--primary"
+                  style={{ background: "var(--color-red)" }}
+                  disabled={deleting}
+                  onClick={handleDelete}
+                >
+                  {deleting ? "Deleting..." : "Delete employee"}
+                </button>
+              </div>
             </div>
           </div>
         )}
