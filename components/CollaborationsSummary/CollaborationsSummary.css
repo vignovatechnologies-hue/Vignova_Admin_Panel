@@ -1,0 +1,87 @@
+.collab-summary__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.collab-summary__header h3 {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.collab-summary__view-all {
+  font-size: 12.5px;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.collab-summary__list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.collab-summary__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.collab-summary__icon {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 8px;
+  background: var(--color-blue-bg);
+  color: var(--color-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.collab-summary__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.collab-summary__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.collab-summary__role {
+  font-size: 11.5px;
+  color: var(--color-text-muted);
+}
+
+.collab-summary__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.collab-summary__status {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 999px;
+}
+
+.collab-summary__status--active {
+  background: var(--color-green-bg);
+  color: var(--color-green);
+}
+
+.collab-summary__status--pending {
+  background: var(--color-orange-bg);
+  color: var(--color-orange);
+}
+
+.collab-summary__since {
+  font-size: 10.5px;
+  color: var(--color-text-muted);
+}

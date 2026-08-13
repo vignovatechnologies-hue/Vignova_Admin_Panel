@@ -1,0 +1,58 @@
+.installs-chart__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.installs-chart__header h3 {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.installs-chart__tabs {
+  display: flex;
+  gap: 16px;
+}
+
+.installs-chart__tab {
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+  padding-bottom: 4px;
+}
+
+.installs-chart__tab--active {
+  color: var(--color-primary);
+  font-weight: 600;
+  border-bottom: 2px solid var(--color-primary);
+}
+
+.installs-chart__tooltip {
+  background: #1c1b2e;
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.installs-chart__tooltip-date {
+  color: #b9b5d4;
+  margin-bottom: 4px;
+}
+
+.installs-chart__tooltip-value {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.installs-chart__tooltip-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #a894ff;
+  display: inline-block;
+}
